@@ -11,9 +11,7 @@ img {
   width: 2%;
   background-color: rgba(127, 255, 212, 0.603);
   position: absolute;
-  /* top: 240px;
-  left: 370px; */
-  /* transform: translateX(-50%); */
+
   margin: 27.5% 75%;
   z-index: 999;
 }
@@ -23,9 +21,7 @@ img {
   width: 3%;
   background-color: rgba(127, 255, 212, 0.603);
   position: absolute;
-  /* top: 240px;
-  left: 370px; */
-  /* transform: translateX(-50%); */
+
   margin: 28% 11.5%;
   z-index: 999;
 }
@@ -35,9 +31,43 @@ img {
   width: 3%;
   background-color: rgba(127, 255, 212, 0.603);
   position: absolute;
-  /* top: 240px;
-  left: 370px; */
-  /* transform: translateX(-50%); */
+
   margin: 65% 62%;
   z-index: 999;
+}
+nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: rgba(14, 10, 39, 0.932);
+  color: #fff;
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+nav img {
+  height: 50px;
+  width: 50px;
+  aspect-ratio: 3/2;
+}
+
+.character-images {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 2rem;
+}
+
+.char-select {
+  position: absolute;
+  background-color: lightslategray;
+  display: flex;
+  flex-direction: column;
+  /* display: none; */
+}
+
+.hidden {
+  opacity: 0;
 }
