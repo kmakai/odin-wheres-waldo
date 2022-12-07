@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, React } from "react";
 import "./App.css";
 import conimage from "./assets/conimage.png";
 
@@ -30,18 +30,21 @@ function App() {
     function handleResize() {
       console.log(window.innerHeight, window.innerWidth);
       console.log("some");
+      document
+        .querySelectorAll(".targetbox")
+        .forEach((box) => console.log(box.id, box.getBoundingClientRect()));
     }
 
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  });
+  }, []);
 
   return (
     <div className="App" onClick={onClick}>
-      <div className="targetbox1" id="naruto" onClick={rev}></div>
-      <div className="targetbox2" id="zoid" onClick={rev}></div>
-      <div className="targetbox3" id="aang" onClick={rev}></div>
+      <div className="targetbox1 targetbox" id="naruto" onClick={rev}></div>
+      <div className="targetbox2 targetbox" id="zoid" onClick={rev}></div>
+      <div className="targetbox3 targetbox" id="aang" onClick={rev}></div>
       <img src={`${conimage}`} alt="con" />
     </div>
   );
