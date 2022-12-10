@@ -2,6 +2,29 @@
   position: relative;
 }
 
+.startmenu {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 9999;
+  background-color: rgba(15, 49, 38, 0.527);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.startmenu button {
+  font-size: 5rem;
+  background-color: rgb(14, 10, 39);
+  color: #fff;
+  padding: 1rem;
+  border: none;
+}
+
+.startmenu button:hover {
+  cursor: pointer;
+}
+
 img {
   width: 100%;
 }

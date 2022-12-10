@@ -1,5 +1,7 @@
-import { useEffect, React, useState } from "react";
 import "./App.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useEffect, React, useState } from "react";
 import conimage from "./assets/conimage.png";
 import Navbar from "./components/Navbar";
 import CharSelect from "./components/CharSelect";
@@ -8,6 +10,10 @@ import { getDoc, doc, updateDoc } from "firebase/firestore";
 
 function App() {
   const [point, setPoint] = useState({ x: null, y: null });
+  const [time, setTime] = useState(0);
+  const [timer, setTimer] = useState();
+  const [start, setStart] = useState(false);
+  const [found, setFound] = useState(0);
   // const [characters, setCharacters] = useState(null);
 
   const onClick = (e) => {
@@ -46,6 +52,7 @@ function App() {
       margin-bottom: ${char.positions.margin[0]}%;
       margin-left: ${char.positions.margin[1]}%;
       margin-right: ${char.positions.margin[1]}%;
+      opacity: 0;
       `
     );
 
@@ -79,21 +86,17 @@ function App() {
       point.y < endY
     ) {
       console.log(docSnap.data().name);
+      toast.success(`You've found ${docSnap.data().name}!!!`);
+      setFound((prevState) => prevState + 1);
+      document.getElementById(ref).style.opacity = 0.5;
+
+      if (found === 3) {
+        clearInterval(timer);
+      }
     } else {
-      console.log("wrong");
+      toast.error("Please try again");
     }
   };
-
-  useEffect(() => {
-    function handleLoad() {
-      let charlist = document.querySelectorAll("span[data-ref]");
-      charlist.forEach((s) => getPositions(s.dataset.ref));
-    }
-
-    window.addEventListener("load", handleLoad);
-
-    return () => window.removeEventListener("load", handleLoad);
-  }, []);
 
   useEffect(() => {
     const handleResizeTimed = debounce(function handleResize() {
@@ -106,13 +109,31 @@ function App() {
     return () => window.removeEventListener("resize", handleResizeTimed);
   }, []);
 
+  function clockTimer() {
+    setTime((prevState) => prevState + 1);
+    console.log(time);
+  }
+
+  function Start() {
+    let charlist = document.querySelectorAll("span[data-ref]");
+    charlist.forEach((s) => getPositions(s.dataset.ref));
+    const timer = setInterval(clockTimer, 1000);
+    setTimer(timer);
+    setStart(true);
+  }
+
   return (
     <div className="App" onClick={onClick}>
-      <Navbar />
+      <Navbar time={time} />
+      {!start && (
+        <div className="startmenu">
+          <button onClick={Start}>CLICK TO START</button>
+        </div>
+      )}
       <div className="targetbox"></div>
       <CharSelect x={point.x} y={point.y} />
-
       <img src={`${conimage}`} alt="con" className="conimage" />
+      <ToastContainer />
     </div>
   );
 }
