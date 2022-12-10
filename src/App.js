@@ -6,7 +6,7 @@ import conimage from "./assets/conimage.png";
 import Navbar from "./components/Navbar";
 import CharSelect from "./components/CharSelect";
 import { db } from "./firebase.config";
-import { getDoc, doc, updateDoc } from "firebase/firestore";
+import { getDoc, doc, updateDoc, setDoc } from "firebase/firestore";
 
 function App() {
   const [point, setPoint] = useState({ x: null, y: null });
@@ -14,6 +14,9 @@ function App() {
   const [timer, setTimer] = useState();
   const [start, setStart] = useState(false);
   const [found, setFound] = useState(0);
+  const [gameEnd, setGameEnd] = useState(false);
+  const [toggleScores, setToggleScores] = useState(false);
+  const [player, setPlayer] = useState("");
   // const [characters, setCharacters] = useState(null);
 
   const onClick = (e) => {
@@ -29,6 +32,8 @@ function App() {
     if (e.target.closest(".char-select")) {
       validate(e.target.dataset.ref);
       selectMenu.classList.add("hidden");
+    } else {
+      return;
     }
   };
 
@@ -89,9 +94,12 @@ function App() {
       toast.success(`You've found ${docSnap.data().name}!!!`);
       setFound((prevState) => prevState + 1);
       document.getElementById(ref).style.opacity = 0.5;
-
-      if (found === 3) {
+      console.log(found);
+      if (found === 2) {
         clearInterval(timer);
+        toast.success("Game Completed");
+        setStart(false);
+        setGameEnd(true);
       }
     } else {
       toast.error("Please try again");
@@ -111,23 +119,53 @@ function App() {
 
   function clockTimer() {
     setTime((prevState) => prevState + 1);
-    console.log(time);
+    // console.log(time);
   }
 
   function Start() {
+    setTime(0);
+    setFound(0);
     let charlist = document.querySelectorAll("span[data-ref]");
     charlist.forEach((s) => getPositions(s.dataset.ref));
-    const timer = setInterval(clockTimer, 1000);
-    setTimer(timer);
+    const timerI = setInterval(clockTimer, 1000);
+    setTimer(timerI);
     setStart(true);
   }
+
+  const scoreSubmit = async () => {
+    try {
+      const docRef = doc(db, "scores", `${player}`);
+      await setDoc(docRef, {
+        score: time,
+      });
+
+      toast.success("score submitted");
+    } catch (error) {
+      toast.error("something went wrong");
+    }
+  };
 
   return (
     <div className="App" onClick={onClick}>
       <Navbar time={time} />
       {!start && (
         <div className="startmenu">
-          <button onClick={Start}>CLICK TO START</button>
+          {gameEnd && time > 0 ? (
+            <div className="score-input">
+              <h1>{time} Seconds</h1>
+              <input
+                type="text"
+                name="score"
+                id="score"
+                value={player}
+                placeholder="Enter Your Name"
+                onChange={(e) => setPlayer(e.target.value)}
+              />
+              <button onClick={scoreSubmit}>Submit your score</button>
+            </div>
+          ) : (
+            <button onClick={Start}>CLICK TO START</button>
+          )}
         </div>
       )}
       <div className="targetbox"></div>
