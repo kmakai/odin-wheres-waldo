@@ -140,6 +140,7 @@ function App() {
       });
 
       toast.success("score submitted");
+      window.location.reload();
     } catch (error) {
       toast.error("something went wrong");
     }
