@@ -6,7 +6,7 @@ import conimage from "./assets/conimage.png";
 import Navbar from "./components/Navbar";
 import CharSelect from "./components/CharSelect";
 import { db } from "./firebase.config";
-import { getDoc, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
+import { getDoc, doc, updateDoc, addDoc, collection } from "firebase/firestore";
 
 function App() {
   const [point, setPoint] = useState({ x: null, y: null });
@@ -15,7 +15,7 @@ function App() {
   const [start, setStart] = useState(false);
   const [found, setFound] = useState(0);
   const [gameEnd, setGameEnd] = useState(false);
-  const [toggleScores, setToggleScores] = useState(false);
+  // const [toggleScores, setToggleScores] = useState(false);
   const [player, setPlayer] = useState("");
   // const [characters, setCharacters] = useState(null);
 
@@ -33,6 +33,8 @@ function App() {
       validate(e.target.dataset.ref);
       selectMenu.classList.add("hidden");
     }
+
+    console.log(e.target);
   };
 
   const getPositions = async (ref) => {
@@ -74,33 +76,41 @@ function App() {
   };
 
   const validate = async (ref) => {
-    const docRef = doc(db, "characters", ref);
-    const docSnap = await getDoc(docRef);
-    let field;
-    if (docSnap.exists()) {
-      field = docSnap.data().field;
-    }
-
-    const { startX, startY, endX, endY } = field;
-    if (
-      point.x > startX &&
-      point.x < endX &&
-      point.y > startY &&
-      point.y < endY
-    ) {
-      console.log(docSnap.data().name);
-      toast.success(`You've found ${docSnap.data().name}!!!`);
-      setFound((prevState) => prevState + 1);
-      document.getElementById(ref).style.opacity = 0.5;
-      console.log(found);
-      if (found === 2) {
-        clearInterval(timer);
-        toast.success("Game Completed");
-        setStart(false);
-        setGameEnd(true);
+    try {
+      const docRef = doc(db, "characters", ref);
+      const docSnap = await getDoc(docRef);
+      let field;
+      if (docSnap.exists()) {
+        field = docSnap.data().field;
       }
-    } else {
-      toast.error("Please try again");
+
+      const { startX, startY, endX, endY } = field;
+      console.log(field);
+      if (
+        point.x > startX &&
+        point.x < endX &&
+        point.y > startY &&
+        point.y < endY
+      ) {
+        console.log(docSnap.data().name);
+        toast.success(`You've found ${docSnap.data().name}!!!`);
+        setFound((prevState) => prevState + 1);
+        document.getElementById(ref).style.opacity =
+          document.getElementById(ref).style.opacity > 0.5 ? 0.5 : 1;
+        console.log(found);
+        if (found === 2) {
+          setFound(0);
+          clearInterval(timer);
+          toast.success("Game Completed");
+          setStart(false);
+          setGameEnd(true);
+        }
+      } else {
+        toast.error("Please try again");
+        console.log(ref);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -115,17 +125,6 @@ function App() {
     return () => window.removeEventListener("resize", handleResizeTimed);
   }, []);
 
-  // useEffect(() => {
-  //   function handleLoad() {
-  //     let charlist = document.querySelectorAll("span[data-ref]");
-  //     charlist.forEach((s) => getPositions(s.dataset.ref));
-  //   }
-
-  //   window.addEventListener("reload", handleLoad);
-
-  //   return () => window.removeEventListener("reload", handleLoad);
-  // }, []);
-
   function clockTimer() {
     setTime((prevState) => prevState + 1);
     // console.log(time);
@@ -135,25 +134,23 @@ function App() {
     setGameEnd(false);
     setTime(0);
     setFound(0);
-    let charlist = document.querySelectorAll("span[data-ref]");
-    charlist.forEach((s) => getPositions(s.dataset.ref));
     const timerI = setInterval(clockTimer, 1000);
     setTimer(timerI);
     setStart(true);
+    let charlist = document.querySelectorAll("span[data-ref]");
+    charlist.forEach((s) => getPositions(s.dataset.ref));
   }
 
   const scoreSubmit = async () => {
     try {
-      const docRef = doc(db, "scores", `${player}`);
-      await addDoc(
-        docRef,
-        {
-          score: time,
-        },
-        { merge: true }
-      );
+      const docRef = collection(db, "scores");
+      await addDoc(docRef, {
+        name: player,
+        score: time,
+      });
 
       toast.success("score submitted");
+      setGameEnd(false);
     } catch (error) {
       toast.error("something went wrong");
     }
@@ -162,9 +159,10 @@ function App() {
   return (
     <div className="App" onClick={onClick}>
       <Navbar time={time} />
+
       {!start && (
         <div className="startmenu">
-          {gameEnd && time > 0 ? (
+          {gameEnd && (
             <div className="score-input">
               <h1>{time} Seconds</h1>
               <input
@@ -177,9 +175,8 @@ function App() {
               />
               <button onClick={scoreSubmit}>Submit your score</button>
             </div>
-          ) : (
-            <button onClick={Start}>CLICK TO START</button>
           )}
+          <button onClick={() => Start()}>CLICK TO START</button>
         </div>
       )}
       <div className="targetbox"></div>
