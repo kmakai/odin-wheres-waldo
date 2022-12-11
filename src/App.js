@@ -6,12 +6,12 @@ import conimage from "./assets/conimage.png";
 import Navbar from "./components/Navbar";
 import CharSelect from "./components/CharSelect";
 import { db } from "./firebase.config";
-import { getDoc, doc, updateDoc, setDoc } from "firebase/firestore";
+import { getDoc, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
 
 function App() {
   const [point, setPoint] = useState({ x: null, y: null });
   const [time, setTime] = useState(0);
-  const [timer, setTimer] = useState();
+  const [timer, setTimer] = useState(null);
   const [start, setStart] = useState(false);
   const [found, setFound] = useState(0);
   const [gameEnd, setGameEnd] = useState(false);
@@ -32,8 +32,6 @@ function App() {
     if (e.target.closest(".char-select")) {
       validate(e.target.dataset.ref);
       selectMenu.classList.add("hidden");
-    } else {
-      return;
     }
   };
 
@@ -117,12 +115,24 @@ function App() {
     return () => window.removeEventListener("resize", handleResizeTimed);
   }, []);
 
+  // useEffect(() => {
+  //   function handleLoad() {
+  //     let charlist = document.querySelectorAll("span[data-ref]");
+  //     charlist.forEach((s) => getPositions(s.dataset.ref));
+  //   }
+
+  //   window.addEventListener("reload", handleLoad);
+
+  //   return () => window.removeEventListener("reload", handleLoad);
+  // }, []);
+
   function clockTimer() {
     setTime((prevState) => prevState + 1);
     // console.log(time);
   }
 
   function Start() {
+    setGameEnd(false);
     setTime(0);
     setFound(0);
     let charlist = document.querySelectorAll("span[data-ref]");
@@ -135,12 +145,15 @@ function App() {
   const scoreSubmit = async () => {
     try {
       const docRef = doc(db, "scores", `${player}`);
-      await setDoc(docRef, {
-        score: time,
-      });
+      await addDoc(
+        docRef,
+        {
+          score: time,
+        },
+        { merge: true }
+      );
 
       toast.success("score submitted");
-      window.location.reload();
     } catch (error) {
       toast.error("something went wrong");
     }
