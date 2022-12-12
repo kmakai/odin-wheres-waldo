@@ -3,7 +3,7 @@ import zoidberg from "../assets/Zoidberg.webp";
 import aang from "../assets/aang.png";
 import Timer from "./Timer";
 
-function Navbar({ time }) {
+function Navbar({ time, togglescores }) {
   return (
     <nav>
       <h1 className="title">Find The Character</h1>
@@ -19,7 +19,9 @@ function Navbar({ time }) {
         </div>
       </div>
       <Timer time={time} />
-      <button>SCORES</button>
+      <button onClick={() => togglescores((prevState) => !prevState)}>
+        SCORES
+      </button>
     </nav>
   );
 }

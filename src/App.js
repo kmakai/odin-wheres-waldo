@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import CharSelect from "./components/CharSelect";
 import { db } from "./firebase.config";
 import { getDoc, doc, updateDoc, addDoc, collection } from "firebase/firestore";
+import Scores from "./components/Scores";
 
 function App() {
   const [point, setPoint] = useState({ x: null, y: null });
@@ -15,7 +16,7 @@ function App() {
   const [start, setStart] = useState(false);
   const [found, setFound] = useState(0);
   const [gameEnd, setGameEnd] = useState(false);
-  // const [toggleScores, setToggleScores] = useState(false);
+  const [toggleScores, setToggleScores] = useState(false);
   const [player, setPlayer] = useState("");
   // const [characters, setCharacters] = useState(null);
 
@@ -158,8 +159,8 @@ function App() {
 
   return (
     <div className="App" onClick={onClick}>
-      <Navbar time={time} />
-
+      <Navbar time={time} togglescores={setToggleScores} />
+      {toggleScores && <Scores togglescores={setToggleScores} />}
       {!start && (
         <div className="startmenu">
           {gameEnd && (
