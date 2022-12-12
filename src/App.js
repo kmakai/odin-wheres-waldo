@@ -34,8 +34,6 @@ function App() {
       validate(e.target.dataset.ref);
       selectMenu.classList.add("hidden");
     }
-
-    console.log(e.target);
   };
 
   const getPositions = async (ref) => {
@@ -86,19 +84,16 @@ function App() {
       }
 
       const { startX, startY, endX, endY } = field;
-      console.log(field);
       if (
         point.x > startX &&
         point.x < endX &&
         point.y > startY &&
         point.y < endY
       ) {
-        console.log(docSnap.data().name);
         toast.success(`You've found ${docSnap.data().name}!!!`);
         setFound((prevState) => prevState + 1);
         document.getElementById(ref).style.opacity =
           document.getElementById(ref).style.opacity > 0.5 ? 0.5 : 1;
-        console.log(found);
         if (found === 2) {
           setFound(0);
           clearInterval(timer);
@@ -108,7 +103,6 @@ function App() {
         }
       } else {
         toast.error("Please try again");
-        console.log(ref);
       }
     } catch (error) {
       console.log(error);

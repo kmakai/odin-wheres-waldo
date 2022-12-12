@@ -6,7 +6,6 @@ function Scores({ togglescores }) {
   const [scores, setScores] = useState([]);
 
   useEffect(() => {
-    console.log("geting score");
     const fetchScores = async () => {
       const arr = [];
       const docRef = collection(db, "scores");
